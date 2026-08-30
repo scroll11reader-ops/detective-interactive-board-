@@ -1,0 +1,509 @@
+/* ==================================================================
+   DE TECH TIVE — EVIDENCE BOARD
+   All styling lives here. The block directly below is the only part
+   most people ever need to touch. See GUIDE.md.
+   ================================================================== */
+
+:root{
+
+  /* ---------- LIGHTING ------------------------------------------
+     The board is lit like a room with one lamp over it. Five knobs:
+       --board-*   the cork itself, light at the top, dark at the base
+       --lamp      colour and strength of the lamp pool
+       --lamp-*    where the lamp hangs and how wide it spreads
+       --vignette  how dark the corners go.  0 turns it off
+       --grain     film grain.               0 turns it off
+       --cork      blotchy cork mottling.    0 turns it off
+       --dim       how far unlit papers fade on hover. 1 = no fade
+     Three ready-made settings are written out in GUIDE.md.
+     -------------------------------------------------------------- */
+  --board-light:#88683f;
+  --board-mid:#6a4e29;
+  --board-dark:#44321c;
+  --lamp:rgba(255,238,198,.48);
+  --lamp-x:44%;
+  --lamp-y:4%;
+  --lamp-size:66% 56%;
+  --vignette:.30;
+  --grain:.24;
+  --cork:.28;
+  --dim:.74;
+
+  /* ---------- PAPER + INK --------------------------------------- */
+  --paper:#f5f0e2;
+  --paper-2:#fbf8ef;
+  --manila:#e8d5a8;
+  --sticky:#f2dc73;
+  --manila-1:#f4e5c0;
+  --manila-2:#ead8ab;
+  --manila-3:#dbc590;
+  --ink:#2a2521;
+  --ink-soft:#6a6055;
+  --rule:rgba(42,37,33,.14);
+
+  /* ---------- ACCENT (string, tacks, case numbers) --------------- */
+  --red:#b8321f;
+  --red-deep:#7d1c10;
+  --red-hot:#ff5c38;
+
+  /* ---------- TYPE ---------------------------------------------- */
+  --serif:"Libre Baskerville",Georgia,"Times New Roman",serif;
+  --type:"Special Elite","Courier New",Courier,monospace;
+  --hand:"Caveat","Segoe Script","Bradley Hand",cursive;
+
+  /* ---------- BOARD SIZE (also set BOARD_W / BOARD_H in board.js) */
+  --board-w:1440px;
+  --board-h:980px;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--board-dark);
+  color:var(--ink);
+  font-family:var(--serif);
+  -webkit-font-smoothing:antialiased;
+  min-height:100dvh;
+  overflow:hidden;
+}
+a{color:var(--red);text-decoration:none}
+a:hover{color:var(--red-deep)}
+
+/* ---------- the room ---------------------------------------------
+   .app is the cork, and it fills the whole screen whatever shape the
+   screen is — a phone, a laptop, an ultrawide, a 4K television. The
+   board itself sits inside it at a fixed 1440 × 980 and is scaled and
+   centred by board.js, so nothing is ever cropped or letterboxed
+   against a black edge.
+   ------------------------------------------------------------------ */
+.app{
+  position:fixed;inset:0;overflow:hidden;
+  background:
+    radial-gradient(var(--lamp-size) at var(--lamp-x) var(--lamp-y), var(--lamp), rgba(255,240,203,0) 76%),
+    radial-gradient(48% 42% at 86% 66%, rgba(255,226,170,.17), rgba(255,226,170,0) 76%),
+    radial-gradient(124% 98% at 50% 34%, rgba(178,132,72,.32), rgba(0,0,0,0) 70%),
+    linear-gradient(172deg, var(--board-light) 0%, var(--board-mid) 46%, var(--board-dark) 100%);
+  box-shadow:inset 0 0 200px rgba(46,28,8,.34);
+}
+.app::after{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:5;
+  background:radial-gradient(88% 80% at 47% 32%,
+    rgba(0,0,0,0) 54%,
+    rgba(24,12,0,calc(var(--vignette) * .45)) 83%,
+    rgba(14,7,0,var(--vignette)) 100%);
+}
+.stage{
+  position:absolute;left:50%;top:50%;z-index:2;
+  width:var(--board-w);height:var(--board-h);
+  transform:translate(-50%,-50%);
+  transform-origin:50% 50%;
+}
+.grain{
+  position:absolute;inset:0;pointer-events:none;z-index:1;
+  opacity:var(--grain);mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+}
+.grain::after{
+  content:"";position:absolute;inset:0;
+  opacity:var(--cork);mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.028' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='420' height='420' filter='url(%23c)' opacity='0.6'/%3E%3C/svg%3E");
+}
+.view{display:none;position:absolute;inset:0;z-index:2}
+.app[data-view="board"] .board-view{display:block}
+
+/* ---------- board ------------------------------------------------ */
+.board{position:absolute;inset:0}
+.papers{position:absolute;inset:0}
+.masthead{
+  position:absolute;left:62px;top:44px;width:430px;
+  transform:rotate(-1.4deg);
+  padding:16px 26px 18px;
+  background:linear-gradient(180deg,rgba(251,247,235,.95),rgba(241,234,216,.95));
+  box-shadow:0 22px 34px -14px rgba(0,0,0,.6), 0 3px 6px rgba(0,0,0,.3);
+  z-index:4;
+}
+.masthead::before,.masthead::after{
+  content:"";position:absolute;top:-11px;width:74px;height:24px;
+  background:rgba(228,216,186,.76);
+  box-shadow:0 1px 2px rgba(48,30,4,.25);
+}
+.masthead::before{left:-16px;transform:rotate(-6deg)}
+.masthead::after{right:-16px;transform:rotate(5deg)}
+.masthead h1{
+  font-family:var(--type);font-size:34px;line-height:1.05;letter-spacing:.5px;
+  margin:0;color:var(--ink);
+}
+.masthead h1 em{font-style:normal;color:var(--red)}
+.masthead p{
+  margin:9px 0 0;font-family:var(--type);font-size:11.5px;letter-spacing:2.4px;
+  text-transform:uppercase;color:var(--ink-soft);
+}
+.legend{
+  position:absolute;right:56px;top:56px;z-index:4;
+  font-family:var(--hand);font-size:23px;color:#fdeac0;
+  transform:rotate(3deg);text-align:right;line-height:1.25;
+  text-shadow:0 2px 6px rgba(0,0,0,.5);
+}
+
+/* ---------- red string -------------------------------------------- */
+.strings{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+.str{
+  fill:none;stroke:var(--red);stroke-width:2.6;stroke-linecap:round;opacity:.95;
+  transition:stroke .18s,stroke-width .18s,opacity .18s,filter .18s;
+}
+.str-sh{fill:none;stroke:rgba(0,0,0,.3);stroke-width:4;stroke-linecap:round;transform:translate(1.5px,3.5px)}
+.board:has(.paper:hover) .str{opacity:.34}
+.board:has(.paper:hover) .str-sh{opacity:.34}
+
+/* ---------- papers ------------------------------------------------ */
+.paper{
+  position:absolute;z-index:3;display:block;color:inherit;
+  transform-origin:50% 12px;
+  cursor:pointer;
+  outline:none;
+}
+.paper .sheet{
+  position:relative;width:100%;height:100%;
+  padding:30px 22px 18px;
+  background:linear-gradient(158deg,var(--paper-2),var(--paper) 46%,#eee7d6);
+  box-shadow:0 20px 34px -14px rgba(0,0,0,.55), 0 3px 6px rgba(0,0,0,.3);
+  transition:transform .2s cubic-bezier(.2,.7,.3,1), box-shadow .2s, opacity .2s, filter .2s;
+  display:flex;flex-direction:column;gap:7px;
+  overflow:hidden;
+}
+.paper .sheet::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,rgba(255,255,255,.5),rgba(255,255,255,0) 38%),
+             radial-gradient(90% 70% at 82% 96%,rgba(120,86,26,.15),rgba(120,86,26,0) 70%);
+}
+.paper:hover .sheet,.paper:focus-visible .sheet{
+  transform:translateY(-7px) scale(1.045);
+  box-shadow:0 34px 52px -18px rgba(0,0,0,.7), 0 4px 8px rgba(0,0,0,.38),
+             0 0 0 1.5px rgba(255,92,56,.55);
+  filter:brightness(1.06);
+}
+.board:has(.paper:hover) .paper:not(:hover) .sheet{
+  opacity:var(--dim);filter:saturate(.7) brightness(.9);
+}
+.board:has(.paper:hover) .paper:not(:hover) .tack{
+  filter:saturate(.78) brightness(.9) drop-shadow(1px 6px 5px rgba(0,0,0,.4));
+}
+.paper::before{
+  content:"";position:absolute;inset:-64px;z-index:-1;pointer-events:none;
+  opacity:0;transition:opacity .24s;
+  background:radial-gradient(50% 50% at 50% 50%, rgba(255,236,192,.44) 0%, rgba(255,204,140,.18) 42%, rgba(255,204,140,0) 72%);
+}
+.paper:hover::before,.paper:focus-visible::before{opacity:1}
+.paper::after{
+  content:"";position:absolute;inset:-4px;pointer-events:none;
+  opacity:0;transition:opacity .18s,inset .18s cubic-bezier(.2,.7,.3,1);
+  filter:drop-shadow(0 0 5px rgba(255,92,56,.55));
+  background:
+    linear-gradient(var(--red),var(--red)) 0 0/26px 2.5px no-repeat,
+    linear-gradient(var(--red),var(--red)) 0 0/2.5px 26px no-repeat,
+    linear-gradient(var(--red),var(--red)) 100% 0/26px 2.5px no-repeat,
+    linear-gradient(var(--red),var(--red)) 100% 0/2.5px 26px no-repeat,
+    linear-gradient(var(--red),var(--red)) 0 100%/26px 2.5px no-repeat,
+    linear-gradient(var(--red),var(--red)) 0 100%/2.5px 26px no-repeat,
+    linear-gradient(var(--red),var(--red)) 100% 100%/26px 2.5px no-repeat,
+    linear-gradient(var(--red),var(--red)) 100% 100%/2.5px 26px no-repeat;
+}
+.paper:hover::after,.paper:focus-visible::after{opacity:1;inset:-15px}
+.tag{
+  position:absolute;left:-15px;bottom:-42px;z-index:5;
+  font-family:var(--type);font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  background:var(--red);color:#fff5ec;padding:5px 10px;white-space:nowrap;
+  opacity:0;transform:translateY(-6px);transition:opacity .18s,transform .18s;
+  box-shadow:0 6px 14px -4px rgba(0,0,0,.6);
+}
+.paper:hover .tag,.paper:focus-visible .tag{opacity:1;transform:translateY(0)}
+
+/* ---------- thumbtack --------------------------------------------- */
+.tack{
+  position:absolute;left:50%;top:-14px;margin-left:-15px;width:30px;height:30px;z-index:6;
+  filter:drop-shadow(1px 7px 6px rgba(0,0,0,.45));
+  transition:filter .18s;
+}
+.tack::before{
+  content:"";position:absolute;left:12px;top:17px;width:7px;height:30px;
+  transform:rotate(17deg);transform-origin:50% 0;
+  background:linear-gradient(96deg,#f3eee2 0 20%,#b3aa9a 48%,#665e52 78%,#443d33 100%);
+  clip-path:polygon(0 0,100% 0,72% 82%,50% 100%,28% 82%);
+}
+.tack::after{
+  content:"";position:absolute;inset:0;border-radius:50%;
+  background:
+    radial-gradient(circle at 31% 23%, rgba(255,255,255,1) 0 6%, rgba(255,255,255,.55) 12%, rgba(255,255,255,0) 27%),
+    radial-gradient(circle at 72% 82%, rgba(255,168,140,.62) 0 9%, rgba(255,168,140,0) 36%),
+    radial-gradient(circle at 42% 32%, #ff8f74 0 14%, #ec4f37 38%, #b52a1a 66%, #6d1409 100%);
+  box-shadow:
+    inset 0 -6px 8px rgba(60,6,0,.5),
+    inset 0 4px 5px rgba(255,255,255,.34),
+    inset 0 0 0 1.5px rgba(255,150,124,.32);
+}
+
+/* ---------- type on the papers ------------------------------------ */
+.caseno{
+  font-family:var(--type);font-size:10px;letter-spacing:2.6px;color:var(--red);
+  text-transform:uppercase;
+}
+.ptitle{font-family:var(--type);font-size:22px;line-height:1.12;margin:0;letter-spacing:.2px}
+.pdek{margin:0;font-size:11.5px;line-height:1.6;color:var(--ink-soft)}
+.pmeta{
+  margin-top:auto;font-family:var(--type);font-size:9.5px;letter-spacing:2px;
+  text-transform:uppercase;color:rgba(42,37,33,.42);
+  border-top:1px solid var(--rule);padding-top:8px;
+}
+
+/* ---------- paper looks -------------------------------------------
+   Add your own by copying one of these blocks and giving it a new
+   class name, then put that name in a paper's "look" field.
+   ------------------------------------------------------------------ */
+.v-manila .sheet{background:linear-gradient(158deg,#f0dfb6,var(--manila) 50%,#dcc793)}
+.v-manila .sheet::before{
+  content:"";position:absolute;left:0;right:0;top:0;height:5px;background:rgba(122,88,26,.28);
+}
+.v-lined .sheet{
+  padding-left:38px;
+  background:
+    repeating-linear-gradient(180deg,transparent 0 25px,rgba(60,90,140,.2) 25px 26px),
+    linear-gradient(158deg,#fdfbf4,#f6f2e6);
+  background-position:0 34px,0 0;
+}
+.v-lined .sheet::before{
+  content:"";position:absolute;left:26px;top:0;bottom:0;width:1px;background:rgba(184,50,31,.35);
+}
+.v-graph .sheet{
+  background:
+    repeating-linear-gradient(0deg,transparent 0 15px,rgba(70,110,120,.16) 15px 16px),
+    repeating-linear-gradient(90deg,transparent 0 15px,rgba(70,110,120,.16) 15px 16px),
+    linear-gradient(158deg,#f4f6ef,#e9ece1);
+}
+.v-photo .sheet{padding:14px 14px 0;background:linear-gradient(158deg,#fefdfa,#f2efe6);gap:0}
+.photo-frame{
+  flex:1;min-height:120px;
+  background:linear-gradient(150deg,#4a5058,#2c3138 55%,#1d2126);
+  background-size:cover;background-position:center;
+  display:flex;align-items:center;justify-content:center;position:relative;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.35);
+}
+.photo-frame span{
+  font-family:var(--type);font-size:10px;letter-spacing:2.4px;color:rgba(255,255,255,.6);
+  text-transform:uppercase;text-align:center;line-height:1.7;
+}
+.photo-frame img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-cap{
+  font-family:var(--hand);font-size:21px;color:#3b3229;
+  text-align:center;padding:9px 4px 12px;line-height:1.1;
+}
+.v-sticky .sheet{
+  background:linear-gradient(160deg,#f7e694,var(--sticky) 55%,#e2c74e);
+  box-shadow:0 18px 30px -12px rgba(0,0,0,.55), 0 3px 5px rgba(0,0,0,.3);
+  padding:26px 18px 14px;
+}
+.v-sticky .ptitle{font-size:19px}
+.v-sticky .pdek{color:#5e4d16}
+
+.sketch{margin:2px 0 0;display:block}
+.sketch line,.sketch circle,.sketch path,.sketch rect{
+  stroke:rgba(42,37,33,.62);fill:none;stroke-width:1.5;stroke-linecap:round;
+}
+.sketch .fill-red{stroke:var(--red)}
+.scribble{font-family:var(--hand);font-size:18px;color:#6d3a12;line-height:1.05}
+
+/* ---------- the case file (manila folder) -------------------------- */
+.case{overflow-y:auto;overflow-x:hidden;padding:44px 0 70px}
+.case::-webkit-scrollbar{width:10px}
+.case::-webkit-scrollbar-thumb{background:rgba(60,38,6,.35);border-radius:6px}
+.filewrap{width:900px;margin:0 auto;position:relative}
+.tape-back{
+  display:inline-block;margin:0 0 46px 6px;
+  font-family:var(--type);font-size:12px;letter-spacing:2px;text-transform:uppercase;
+  background:rgba(242,235,213,.92);color:#4a3f30;
+  padding:8px 18px;transform:rotate(-1.6deg);cursor:pointer;
+  box-shadow:0 5px 12px -6px rgba(0,0,0,.5);
+  border-left:2px solid rgba(184,50,31,.5);
+}
+.tape-back:hover{background:rgba(252,247,232,.98);color:var(--red-deep)}
+.file{
+  position:relative;
+  background:
+    repeating-linear-gradient(94deg,rgba(146,110,48,.05) 0 2px,rgba(255,255,255,0) 2px 5px),
+    linear-gradient(170deg,var(--manila-1) 0%,var(--manila-2) 46%,var(--manila-3) 100%);
+  padding:56px 68px 60px;
+  border-top:1px solid rgba(255,248,226,.55);
+  box-shadow:
+    0 40px 70px -26px rgba(0,0,0,.7),
+    0 4px 10px rgba(0,0,0,.34),
+    inset 13px 0 0 rgba(146,42,24,.9),
+    inset 16px 0 10px -8px rgba(0,0,0,.3),
+    inset 0 -22px 30px -24px rgba(96,66,20,.5);
+}
+.file::before{
+  content:"";position:absolute;left:52px;top:-30px;width:216px;height:32px;
+  background:linear-gradient(168deg,var(--manila-1),var(--manila-2));
+  border-radius:6px 12px 0 0;
+  border-top:1px solid rgba(255,248,226,.55);
+  box-shadow:0 -6px 14px -6px rgba(0,0,0,.45);
+  clip-path:polygon(0 100%,7% 0,93% 0,100% 100%);
+}
+.file::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  opacity:.28;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23f)' opacity='0.35'/%3E%3C/svg%3E");
+}
+.file > .fno,.file > h1,.file > .flede,.file > .rule,.file > .fbody{position:relative;z-index:1}
+.file .tack{left:auto;margin-left:0}
+.tack-l{left:300px;top:-15px}
+.tack-r{right:44px;left:auto;top:-15px}
+.stamp{
+  position:absolute;right:58px;top:44px;z-index:1;
+  font-family:var(--type);font-size:12px;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(184,50,31,.75);border:2.5px solid rgba(184,50,31,.55);
+  padding:8px 14px;transform:rotate(-7deg);opacity:.85;
+}
+.fno{font-family:var(--type);font-size:11px;letter-spacing:4px;color:var(--red);text-transform:uppercase}
+.file h1{
+  font-family:var(--type);font-size:42px;line-height:1.1;margin:12px 0 0;letter-spacing:.3px;
+}
+.flede{
+  margin:16px 0 0;font-size:16px;line-height:1.7;font-style:italic;color:#5b5044;
+  max-width:60ch;
+}
+.rule{height:1px;background:var(--rule);margin:34px 0 30px}
+.fbody{display:grid;grid-template-columns:minmax(0,1fr) 246px;gap:44px;align-items:start}
+.fbody p{margin:0 0 17px;font-size:14.5px;line-height:1.85;max-width:62ch}
+.fbody h3{
+  font-family:var(--type);font-size:13px;letter-spacing:3px;text-transform:uppercase;
+  margin:30px 0 14px;color:var(--red-deep);
+}
+.fbody h3:first-child{margin-top:0}
+.fbody img{max-width:100%;height:auto;display:block;margin:0 0 18px;
+  box-shadow:0 10px 22px -12px rgba(0,0,0,.6)}
+
+/* content blocks you can use inside a paper's "body" */
+.facts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
+.facts li{
+  display:flex;gap:10px;align-items:baseline;justify-content:space-between;
+  padding:9px 0;border-bottom:1px dotted rgba(42,37,33,.3);
+  font-size:13px;
+}
+.facts li span{color:var(--ink-soft);font-size:12px}
+.facts li b{font-family:var(--type);font-weight:400;font-size:13px;text-align:right}
+.aside{
+  background:linear-gradient(168deg,rgba(254,251,244,.95),rgba(246,240,225,.95));
+  padding:22px 22px 24px;
+  box-shadow:0 6px 14px -8px rgba(60,36,4,.45), inset 0 0 0 1px rgba(122,88,26,.26);
+}
+.aside h4{
+  font-family:var(--type);font-size:11px;letter-spacing:2.6px;text-transform:uppercase;
+  margin:0 0 14px;color:var(--red-deep);
+}
+.margin-note{
+  font-family:var(--hand);font-size:23px;line-height:1.3;color:#6d3a12;
+  margin:26px 0 0;transform:rotate(-1.2deg);
+}
+.margin-note::before{content:"→ ";color:var(--red)}
+.roster{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 24px}
+.roster li{border-left:2px solid rgba(184,50,31,.4);padding:2px 0 2px 12px}
+.roster b{display:block;font-family:var(--type);font-weight:400;font-size:13.5px}
+.roster span{font-size:11.5px;color:var(--ink-soft);letter-spacing:.3px}
+.log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:18px}
+.log li{display:grid;grid-template-columns:112px minmax(0,1fr);gap:18px;align-items:start}
+.log time{
+  font-family:var(--type);font-size:11px;letter-spacing:1.6px;color:var(--red-deep);
+  padding-top:3px;text-transform:uppercase;
+}
+.log p{margin:0 !important}
+.ph{
+  background:rgba(184,50,31,.1);
+  box-shadow:inset 0 0 0 1px rgba(184,50,31,.32);
+  padding:1px 6px;font-family:var(--type);font-size:.92em;color:var(--red-deep);
+  white-space:nowrap;
+}
+.tierlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.tierlist li{
+  display:flex;justify-content:space-between;gap:16px;align-items:baseline;
+  padding:14px 16px;background:rgba(255,253,246,.72);
+  box-shadow:inset 0 0 0 1px rgba(122,88,26,.2);
+}
+.tierlist b{font-family:var(--type);font-weight:400;font-size:14px}
+.tierlist span{font-size:12px;color:var(--ink-soft)}
+.inlink{color:var(--red);cursor:pointer;border-bottom:1px solid rgba(184,50,31,.4)}
+.inlink:hover{color:var(--red-deep)}
+
+/* ==================================================================
+   STACKED MODE — phones, tablets and short windows.
+   board.js sets data-mode="stack" on <html> below 1024px wide (or
+   under 620px tall). The pinned board becomes a scrolling column of
+   cards; strings and hover effects step aside for touch.
+   ================================================================== */
+:root[data-mode="stack"] body{overflow:auto}
+:root[data-mode="stack"] .app{
+  position:relative;inset:auto;overflow:visible;
+  width:100%;height:auto;min-height:100dvh;
+}
+:root[data-mode="stack"] .stage{
+  position:static;left:auto;top:auto;
+  width:100%;height:auto;min-height:100dvh;transform:none;
+}
+:root[data-mode="stack"] .view{position:static;inset:auto}
+:root[data-mode="stack"] .board{position:static;padding:26px 18px 64px}
+:root[data-mode="stack"] .masthead,
+:root[data-mode="stack"] .legend{
+  position:static;width:auto;transform:none;margin:0 auto 22px;max-width:900px;
+}
+:root[data-mode="stack"] .masthead::before,
+:root[data-mode="stack"] .masthead::after{display:none}
+:root[data-mode="stack"] .legend{text-align:left;margin-bottom:28px}
+:root[data-mode="stack"] .strings{display:none}
+:root[data-mode="stack"] .papers{
+  position:static;display:grid;gap:38px 26px;max-width:940px;margin:0 auto;
+  grid-template-columns:repeat(auto-fill,minmax(272px,1fr));
+}
+/* relative, not static, so each paper's thumbtack stays on its own
+   paper instead of collecting at the top of the board */
+:root[data-mode="stack"] .paper{
+  position:relative !important;
+  left:auto !important;top:auto !important;
+  width:auto !important;height:auto !important;
+  transform:none !important;
+  margin-top:6px;
+}
+:root[data-mode="stack"] .paper .sheet{min-height:172px}
+:root[data-mode="stack"] .paper::before,
+:root[data-mode="stack"] .paper::after{display:none}
+:root[data-mode="stack"] .tag{display:none}
+:root[data-mode="stack"] .board:has(.paper:hover) .paper:not(:hover) .sheet{
+  opacity:1;filter:none;
+}
+:root[data-mode="stack"] .case{padding:20px 14px 60px}
+:root[data-mode="stack"] .filewrap{width:100%;max-width:760px}
+:root[data-mode="stack"] .tape-back{margin-bottom:40px}
+:root[data-mode="stack"] .file{padding:38px 22px 42px}
+:root[data-mode="stack"] .file::before{left:20px;width:148px}
+:root[data-mode="stack"] .file h1{font-size:29px}
+:root[data-mode="stack"] .flede{font-size:15px}
+:root[data-mode="stack"] .stamp{
+  position:static;display:block;width:fit-content;margin:0 0 18px;
+  transform:rotate(-2deg);
+}
+:root[data-mode="stack"] .fno{display:block;margin-bottom:4px}
+:root[data-mode="stack"] .ph{white-space:normal}
+:root[data-mode="stack"] .tack-l{display:none}
+:root[data-mode="stack"] .tack-r{right:26px}
+:root[data-mode="stack"] .fbody{grid-template-columns:minmax(0,1fr);gap:30px}
+:root[data-mode="stack"] .roster{grid-template-columns:minmax(0,1fr)}
+:root[data-mode="stack"] .log li{grid-template-columns:minmax(0,1fr);gap:4px}
+
+/* small phones */
+@media (max-width:420px){
+  :root[data-mode="stack"] .masthead h1{font-size:27px}
+  :root[data-mode="stack"] .file{padding:32px 18px 36px}
+  :root[data-mode="stack"] .file h1{font-size:25px}
+  :root[data-mode="stack"] .papers{grid-template-columns:minmax(0,1fr)}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important;animation:none !important}
+}

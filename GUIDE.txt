@@ -1,0 +1,768 @@
+==============================================================
+  DE TECH TIVE - EVIDENCE BOARD
+  THE MANUAL
+==============================================================
+
+  This file is plain text. Double-click it and it opens in
+  Notepad. Every line is wrapped to fit, so you should not need
+  to scroll sideways. If it does run off the right edge, turn on
+  Format > Word Wrap.
+
+  Nothing in here assumes you have built a website before.
+
+
+  CONTENTS
+
+   1. What is in the folder
+   2. Opening it, editing it, putting it online
+   3. Editing safely in Notepad
+   4. Adding a paper
+   5. Removing a paper
+   6. Moving, resizing, tilting
+   7. Restringing
+   8. Paper stocks
+   9. Photos and images
+  10. Writing a case page
+  11. Lighting
+  12. Scaling and televisions
+  13. When something breaks
+  14. Quick reference - where to change what
+
+
+==============================================================
+  1.  WHAT IS IN THE FOLDER
+==============================================================
+
+  index.html
+      The shell. Loads the other three files.
+      You edit it: almost never.
+
+  content.js
+      Every paper, every case page, every string.
+      You edit it: YES. This is the one.
+
+  style.css
+      All the styling, with the lighting knobs at the top.
+      You edit it: yes, for looks.
+
+  board.js
+      The engine. Placement, string curves, page switching,
+      scaling.
+      You edit it: rarely.
+
+  GUIDE.txt
+      This file.
+
+  GUIDE.md
+      The same manual, formatted for GitHub. Ignore it if you
+      are working in Notepad.
+
+  Rule of thumb: WHAT THE SITE SAYS lives in content.js. WHAT
+  THE SITE LOOKS LIKE lives in style.css. board.js is the part
+  that does the work, and you can go a long way without ever
+  opening it.
+
+
+==============================================================
+  2.  OPENING IT, EDITING IT, PUTTING IT ONLINE
+==============================================================
+
+  TO LOOK AT IT
+
+  Double-click index.html. It opens in your browser. That is
+  it - no install, no build step, no server.
+
+
+  TO EDIT IT
+
+  Right-click the file you want, choose Open with, then
+  Notepad. Make your change, save, then switch to the browser
+  and refresh.
+
+  If a change does not seem to show up, hard-refresh:
+  hold Ctrl and Shift and press R. On a Mac, Cmd Shift R.
+  Browsers hang on to old copies of CSS and JS files.
+
+
+  TO PUT IT ONLINE
+
+  Upload all four files - index.html, content.js, style.css
+  and board.js - to any static host, keeping them together in
+  one folder. GitHub Pages, Netlify drop, Cloudflare Pages,
+  your school's web space. All work. There is no backend and
+  no database.
+
+
+==============================================================
+  3.  EDITING SAFELY IN NOTEPAD
+==============================================================
+
+  Notepad is fine for this. Five things to know.
+
+  1. OPEN THE FILE, DO NOT DOUBLE-CLICK IT
+
+     Double-clicking content.js may try to RUN it instead of
+     opening it. Right-click, Open with, Notepad. Or open
+     Notepad first and use File > Open.
+
+     In the File > Open box, change the file-type dropdown from
+     "Text Documents" to "All Files" or you will not see
+     content.js, style.css or board.js listed.
+
+  2. SAVING DOES NOT RENAME IT
+
+     Use File > Save (Ctrl+S). Do not use Save As unless you
+     have to - if you do, set the file-type dropdown to
+     "All Files" first, or Notepad quietly saves your file as
+     content.js.txt and the site stops working.
+
+  3. LEAVE THE ENCODING ALONE
+
+     At the bottom of the Save As box there is an Encoding
+     dropdown. Leave it on UTF-8. If you switch it to ANSI, the
+     long dashes and accented characters in your text turn into
+     junk symbols on the page.
+
+  4. TURN ON WORD WRAP
+
+     Format > Word Wrap. Otherwise long lines run off the edge
+     and you will lose your place.
+
+  5. FIND IS YOUR FRIEND
+
+     Ctrl+F opens Find. To jump to a paper, search for its id -
+     for example, sponsors. To find the lighting controls in
+     style.css, search for LIGHTING.
+
+  If you would rather use something with colours and line
+  numbers, Notepad++ is free, opens the same files, and makes
+  a missing comma much easier to spot. Nothing in this folder
+  requires it.
+
+
+==============================================================
+  4.  ADDING A PAPER
+==============================================================
+
+  Every paper on the board is one block in the PAPERS list in
+  content.js. Adding one gets you, automatically:
+
+    - a paper pinned to the board, with a thumbtack
+    - red string to whatever you tie it to
+    - the hover effect: corner brackets, lit string, and every
+      other paper dimming back
+    - its own full case-file page
+    - a spot on the board, if you do not pick one yourself
+
+  Copy the block below, paste it into PAPERS just before the
+  closing  ];  and change the words. Mind the comma after the
+  previous block's closing brace.
+
+      { id: 'shop', n: '09', title: 'The Shop', look: 'v-graph',
+        dek: 'Twelve hundred square feet, one working vice.',
+        meta: 'Tools . Safety . Hours',
+        links: ['robot', 'contact'],
+        lede: 'Where the noise comes from.',
+        body: `
+          <h3>What is in there</h3>
+          <p>A mill, a lathe, two printers and a router that is
+             older than anyone on the team.</p>
+          <h3>Safety</h3>
+          <p>Eye protection at all times. No solo machining.</p>`,
+        aside: { title: 'Kit', facts: [
+          ['Mill', '[MODEL]'],
+          ['Lathe', '[MODEL]'],
+          ['Printers', '[COUNT]'] ] },
+        note: 'update this when the new router lands' },
+
+  Save, refresh the browser. Done.
+
+
+  EVERY FIELD, EXPLAINED
+
+  id            REQUIRED
+                Short unique name. Letters, numbers and dashes
+                only - no spaces, no slashes. Becomes the page's
+                web address (#shop) and how other papers aim
+                string at it.
+
+  n             optional
+                The case number printed on the paper and on its
+                page. Leave it out and the paper has no number.
+
+  title         REQUIRED
+                Heading on the paper and at the top of its page.
+
+  dek           optional
+                One line under the title on the paper.
+
+  meta          optional
+                Small capitals strip along the bottom of the
+                paper.
+
+  look          optional
+                Which paper stock it is printed on. See part 8.
+
+  x, y          optional
+                Where it sits on the 1440 by 980 board. Leave
+                them out and it places itself.
+
+  w, h          optional
+                Size of the paper. Defaults to 256 by 206.
+
+  rot           optional
+                Tilt in degrees. Negative leans left. Leave it
+                out and it picks one.
+
+  links         optional
+                List of other ids to run red string to.
+                An empty list [] means none.
+
+  lede          optional
+                The italic opening line on its page.
+
+  body          REQUIRED
+                The page itself, written as HTML. See part 10.
+
+  aside         optional
+                The boxed fact list on the right of the page.
+
+  note          optional
+                Handwritten note in the page margin.
+
+  extra         optional
+                Extra HTML on the paper front, under the dek -
+                a sketch, a scribble.
+
+  face          optional
+                Replaces the entire paper front. Only needed for
+                unusual papers like the photo card.
+
+
+  TWO THINGS THAT WILL BITE YOU
+
+  COMMAS.  Every block except the last one needs a comma after
+  its closing brace. Miss one and the board comes up blank.
+
+  BACKTICKS.  The body field is wrapped in backticks, not
+  quotes. A backtick is the key above Tab, to the left of the
+  1. That is what lets the text run over many lines. Straight
+  quotes will not work there.
+
+  If the board comes up blank, see part 13.
+
+
+==============================================================
+  5.  REMOVING A PAPER
+==============================================================
+
+  Delete its whole block from PAPERS - from its opening brace
+  to its closing brace, including the comma.
+
+  That is the only step. You do NOT need to:
+
+    - remove the strings pointing at it. They vanish with it,
+      because string is worked out from links when the page
+      loads, not written by hand.
+    - delete its page. The page is generated from the block.
+    - renumber anything, although you will probably want to fix
+      the n values so the case numbers still run in order.
+
+  ONE THING TO CHECK.  If another paper's body has a
+  hand-written link to it, like
+
+      <a href="#shop">the shop</a>
+
+  that link now goes nowhere and lands the visitor back on the
+  board. Press Ctrl+F in content.js and search for the id you
+  deleted.
+
+
+==============================================================
+  6.  MOVING, RESIZING, TILTING
+==============================================================
+
+  The board is a fixed canvas, 1440 wide by 980 tall. x and y
+  are measured from the top-left corner, in those units, and
+  they point at the paper's own top-left corner.
+
+      x: 826, y: 176,     826 across, 176 down
+      w: 286, h: 202,     286 wide, 202 tall
+      rot: -1.8           leaning slightly left
+
+  DELETE x AND y and the paper places itself. The engine scores
+  every spot on the board by how much it would overlap the
+  papers already placed - and the masthead and the handwritten
+  legend, which count as obstacles - then takes the emptiest
+  one. If the board is crowded it retries the paper at 86, 74,
+  62 and 52 percent size until something fits cleanly, so extra
+  papers arrive as smaller notes rather than landing on top of
+  each other.
+
+  About TEN PAPERS fit comfortably. Past that you will see this
+  in the browser console (press F12, then the Console tab):
+
+      Evidence board: "shop" had no clear space left -
+      give it its own x / y in content.js.
+
+  That means: pick a spot yourself, or give it a smaller w and
+  h, or retire a paper you no longer need.
+
+  WANT A BIGGER BOARD?  Change BOARD_W and BOARD_H at the top of
+  board.js AND --board-w and --board-h in style.css to the same
+  numbers. They must match.
+
+
+==============================================================
+  7.  RESTRINGING
+==============================================================
+
+  Each paper carries its own connections in links:
+
+      { id: 'robot', ..., links: ['wheels', 'sponsors'] }
+
+  That draws string from The Robot to Wheels Assembly and to
+  Sponsors.
+
+    - String is TWO-WAY. Listing robot in wheels as well changes
+      nothing. Duplicates are dropped.
+    - Pointing at an id that does not exist is ignored, quietly
+      and safely.
+    - An empty list, or no links at all, means an unconnected
+      paper. That is allowed. It just floats.
+    - String hangs in a curve, sagging under its own weight.
+      Long runs sag more. Near-vertical runs bow sideways
+      instead. All of that is worked out from the two pin
+      positions. There is nothing to set.
+
+  HOVERING A PAPER LIGHTS UP ITS STRING. That comes free: every
+  paper gets a rule generated for it when the page loads, so a
+  new paper's string lights up exactly like the originals.
+
+
+==============================================================
+  8.  PAPER STOCKS  (the look field)
+==============================================================
+
+  ''  or leave it out    Plain off-white sheet
+  'v-manila'             Buff manila card, darker strip on top
+  'v-lined'              Ruled notepad, blue lines, red margin
+  'v-graph'              Graph paper
+  'v-photo'              Polaroid: white frame, photo well and
+                         a handwritten caption
+  'v-sticky'             Yellow sticky note
+
+
+  MAKING YOUR OWN STOCK
+
+  Open style.css and find the block headed "paper looks".
+  Copy one of the entries and give it a new name:
+
+      .v-blueprint .sheet{
+        background:
+          repeating-linear-gradient(0deg,transparent 0 18px,
+            rgba(255,255,255,.16) 18px 19px),
+          repeating-linear-gradient(90deg,transparent 0 18px,
+            rgba(255,255,255,.16) 18px 19px),
+          linear-gradient(158deg,#1e3f6b,#12294a);
+        color:#e8f0ff;
+      }
+      .v-blueprint .ptitle,
+      .v-blueprint .pdek{color:#e8f0ff}
+
+  Then use it in content.js:   look: 'v-blueprint',
+
+  The only rule is that your class targets .sheet, which is the
+  visible paper, and not .paper, which is the invisible box
+  positioned around it.
+
+
+==============================================================
+  9.  PHOTOS AND IMAGES
+==============================================================
+
+  Put your image file in the same folder as index.html.
+
+  INSIDE A CASE PAGE, in the body field:
+
+      <img src="team-2026.jpg" alt="The team at districts">
+
+  REPLACING THE POLAROID PLACEHOLDER on the Team paper. Swap
+  its face field for this:
+
+      face: `
+        <div class="photo-frame">
+          <img src="team-2026.jpg" alt="Team photo">
+        </div>
+        <div class="photo-cap">the crew - 2026</div>`,
+
+  The photo well crops to fill, so any shape of photo works.
+
+  KEEP FILES SMALL. Resize photos to about 1200 pixels on the
+  long edge and save as JPG. A 6 MB photo straight off a phone
+  will make the page crawl on school wifi.
+
+
+==============================================================
+  10.  WRITING A CASE PAGE  (the body field)
+==============================================================
+
+  body is plain HTML. These pieces are already styled for you.
+  Use them and every page stays consistent.
+
+  HEADINGS AND TEXT
+
+      <h3>A section heading</h3>
+      <p>A paragraph. <b>Bold</b> and <i>italic</i> work as
+         normal.</p>
+
+  A PLACEHOLDER YOU HAVE NOT FILLED IN YET. Shows as a boxed
+  red tag so nobody mistakes it for a real fact:
+
+      <span class="ph">[TEAM NUMBER]</span>
+
+  A DATED LOG. Build logs, award history, season timelines:
+
+      <ul class="log">
+        <li><time>14 Jan</time>
+            <p>Cut the first plate.</p></li>
+        <li><time>21 Jan</time>
+            <p>Drivetrain rolling under its own power.</p></li>
+      </ul>
+
+  A ROSTER. Names and roles, two columns:
+
+      <ul class="roster">
+        <li><b>Sam Ortiz</b><span>Build lead</span></li>
+        <li><b>Priya Raman</b><span>Software lead</span></li>
+      </ul>
+
+  A TIER OR CONTACT LIST. Label left, value right:
+
+      <ul class="tierlist">
+        <li><b>Gold, $2,500</b>
+            <span>Logo on the robot</span></li>
+        <li><b>General enquiries</b>
+            <span>team@example.org</span></li>
+      </ul>
+
+  A LINK TO ANOTHER CASE FILE. Use that paper's id with a #:
+
+      <a href="#wheels">the build log</a>
+
+  THE FACT BOX on the right is not HTML. It is the aside field:
+
+      aside: { title: 'Spec sheet', facts: [
+        ['Weight', '120 lb'],
+        ['Top speed', '14 ft/s'] ] },
+
+
+==============================================================
+  11.  LIGHTING
+==============================================================
+
+  The board is lit like a room with one lamp hanging over it.
+  All of it is controlled by the block at the very top of
+  style.css. Press Ctrl+F and search for LIGHTING.
+
+  --board-light     The cork where the lamp hits it.
+                    Any colour.
+
+  --board-mid       The middle of the board.
+                    Any colour.
+
+  --board-dark      The bottom corners, furthest from the lamp.
+                    Any colour.
+
+  --lamp            Colour and strength of the lamp pool. The
+                    last number is the strength, 0 to 1.
+
+  --lamp-x
+  --lamp-y          Where the lamp hangs. 0% to 100%.
+
+  --lamp-size       How wide the pool spreads. Two percentages,
+                    width then height.
+
+  --vignette        How dark the corners go.
+                    0 is off, .5 is heavy.
+
+  --grain           Film grain over everything.
+                    0 is off, .4 is heavy.
+
+  --cork            Blotchy cork mottling.
+                    0 is off, .5 is heavy.
+
+  --dim             How far the other papers fade when you
+                    hover one. 1 is no fade, .4 is strong.
+
+
+  THREE SETTINGS TO START FROM
+
+  Paste one of these over the existing values.
+
+  BRIGHT - daylight through a window. Good if people are
+  reading this on phones or a projector.
+
+      --board-light:#b08a56;
+      --board-mid:#96703d;
+      --board-dark:#6b502c;
+      --lamp:rgba(255,246,220,.55);
+      --vignette:.12;
+      --grain:.16;
+      --cork:.20;
+      --dim:.86;
+
+  STANDARD - what ships. One lamp, warm, corners falling away.
+
+      --board-light:#88683f;
+      --board-mid:#6a4e29;
+      --board-dark:#44321c;
+      --lamp:rgba(255,238,198,.48);
+      --vignette:.30;
+      --grain:.24;
+      --cork:.28;
+      --dim:.74;
+
+  HARD NOIR - one bulb, late. Dramatic, harder to read.
+
+      --board-light:#5a4326;
+      --board-mid:#3f2e19;
+      --board-dark:#241a0e;
+      --lamp:rgba(255,226,168,.42);
+      --vignette:.52;
+      --grain:.32;
+      --cork:.34;
+      --dim:.45;
+
+
+  MOVING THE LAMP
+
+  --lamp-x: 44% and --lamp-y: 4% hang it near the top, slightly
+  left of centre. Try --lamp-x: 70% to throw the light across
+  the right of the board, or --lamp-y: 40% to drop it lower and
+  light the middle. --lamp-size: 66% 56% is the spread - bigger
+  numbers give a softer, wider pool.
+
+
+  CHANGING THE RED
+
+  The string, the thumbtacks, the case numbers and the hover
+  brackets all come from three values:
+
+      --red:#b8321f;        the string, the tacks, case numbers
+      --red-deep:#7d1c10;   hovered links, section headings
+      --red-hot:#ff5c38;    the string when you hover a paper
+
+  Change all three together or the hover will not match.
+
+
+  TYPE
+
+  Three fonts, loaded from Google Fonts in index.html:
+
+      --type     Special Elite. Typewriter. Headings, labels,
+                 stamps.
+      --serif    Libre Baskerville. Reading copy.
+      --hand     Caveat. Handwritten notes and captions.
+
+  To swap one, change the font link in index.html and then
+  update the matching value in style.css. Always keep the
+  fallback fonts listed after the comma, so text still shows if
+  Google Fonts is blocked on a school network.
+
+
+==============================================================
+  12.  SCALING AND TELEVISIONS
+==============================================================
+
+  Two modes, chosen automatically when the page loads and on
+  every resize, rotate, fullscreen toggle and display change.
+
+  CANVAS MODE - screens 1024 pixels wide and up, and at least
+  620 tall.
+
+  The cork fills the entire screen, whatever shape the screen
+  is: a 16:9 television, a 21:9 ultrawide, a squarish laptop.
+  On top of it the board sits at a fixed 1440 by 980, scaled to
+  the largest size that still shows all of it, and centred. So
+  you never get black letterbox bars - just more corkboard
+  around the edges on wider screens.
+
+  Everything is real text and vector shapes, so it stays sharp
+  at any size. A 13 inch laptop draws it at about 0.7 times; a
+  1080p television at about 1.06 times; a 4K television at
+  about 2.1 times. Nothing is ever cropped and there is never
+  anything to scroll.
+
+  STACKED MODE - anything narrower or shorter. The pinned board
+  becomes an ordinary scrolling page: the papers turn into a
+  grid of cards, two or three across on a tablet and one on a
+  phone, each keeping its own thumbtack and paper stock. The
+  red string steps aside, since it has nothing to connect
+  across a scrolling column. Case pages become a single
+  readable column with the fact box dropping below the text.
+
+  Both live in style.css. Every stacked rule begins with
+
+      :root[data-mode="stack"]
+
+  so you can find all of them with Ctrl+F. Canvas mode is
+  everything else.
+
+
+  PUTTING IT ON A TELEVISION
+
+  It is built for this. Open index.html in the television's
+  browser - or on a stick or mini PC plugged into it - press F11
+  for fullscreen, and leave it. It fills the screen correctly at
+  720p, 1080p, 1440p and 4K with nothing to change.
+
+  OVERSCAN.  Many televisions quietly crop 2 to 4 percent off
+  every edge. The board leaves a small margin for that, set by
+  SAFE_AREA in board.js. If your screen shows the full picture -
+  most modern sets, and every computer monitor - set it to 1 and
+  the board grows to fill more of the screen.
+
+  KIOSK MODE.  To have it come up fullscreen on boot with no
+  browser chrome, launch Chrome like this:
+
+      chrome --kiosk "file:///path/to/index.html"
+
+  SLEEP AND WAKE.  When a television or set-top box changes
+  resolution or wakes up, the board re-measures itself and
+  re-fits. You do not have to refresh it.
+
+  READING DISTANCE.  At 1080p the case-page body type is
+  comfortable from a desk and small from across a room. If the
+  board lives on a wall people read from a distance, raise the
+  type in style.css:
+
+      .fbody p{font-size:16.5px}
+      .pdek{font-size:13px}
+
+
+  THE FOUR NUMBERS THAT CONTROL ALL OF IT
+
+  Near the top of board.js:
+
+      var STACK_BELOW_W = 1024;   narrower than this, stack it
+      var STACK_BELOW_H = 620;    shorter than this, stack it
+      var MAX_SCALE     = 8;      ceiling on how large it draws
+      var SAFE_AREA     = 0.96;   margin kept for TV overscan.
+                                  Set it to 1 for no margin.
+
+  Raise STACK_BELOW_W to send tablets to the stacked layout as
+  well. Lower it to keep the pinned board on smaller screens.
+  MAX_SCALE of 8 is high enough for an 8K wall and is simply
+  never reached on a laptop.
+
+
+  CARDS PER ROW ON TABLETS
+
+  In style.css:
+
+      :root[data-mode="stack"] .papers{
+        grid-template-columns:
+          repeat(auto-fill,minmax(272px,1fr));
+      }
+
+  272px is the narrowest a card may get before the grid drops
+  to fewer columns. Raise it for wider cards, lower it for more
+  per row.
+
+
+==============================================================
+  13.  WHEN SOMETHING BREAKS
+==============================================================
+
+  THE BOARD COMES UP BLANK.
+  Almost always a typo in content.js. Open the browser console -
+  press F12, then click the Console tab - and read the first red
+  line. It names the line number. The usual causes:
+
+      - a missing comma between two blocks
+      - a missing closing backtick on a body field
+      - an unclosed HTML tag inside body
+
+  A PAPER IS MISSING.
+  Check it has an id, and that no other paper uses the same id.
+
+  A PAPER IS SITTING ON TOP OF ANOTHER.
+  The board is full. Give it its own x and y, shrink its w and
+  h, or remove something.
+
+  A STRING DOES NOT APPEAR.
+  The id in links does not match a real paper's id. They are
+  case sensitive: Robot is not the same as robot.
+
+  CLICKING A PAPER DOES NOTHING.
+  Its id contains a character that is not a letter, number or
+  dash. Spaces and slashes break the address.
+
+  THE PAGE LOOKS UNSTYLED, PLAIN BLACK TEXT ON WHITE.
+  style.css is missing, renamed, or in a different folder from
+  index.html. Check all four files are together. Check Notepad
+  did not save it as style.css.txt.
+
+  THE FONTS LOOK WRONG.
+  Google Fonts is blocked or offline. The page falls back to
+  system fonts and stays readable. Nothing is broken.
+
+  YOUR TEXT SHOWS STRANGE SYMBOLS WHERE DASHES SHOULD BE.
+  The file was saved as ANSI instead of UTF-8. Re-save it: File,
+  Save As, set Encoding to UTF-8.
+
+  CHANGES ARE NOT SHOWING.
+  Hard-refresh the browser: Ctrl Shift R, or Cmd Shift R on a
+  Mac.
+
+
+==============================================================
+  14.  QUICK REFERENCE - WHERE TO CHANGE WHAT
+==============================================================
+
+  Add or remove a page
+      content.js, the PAPERS list
+
+  Change the team name or tagline
+      content.js, the TEAM block at the top
+
+  Rewrite a page
+      content.js, that paper's body field
+
+  Move a paper
+      content.js, its x and y
+
+  Change what string connects
+      content.js, its links
+
+  Make the board lighter or darker
+      style.css, the lighting block at the top
+
+  Change the red
+      style.css: --red, --red-deep, --red-hot
+
+  Change the fonts
+      style.css: --type, --serif, --hand
+      and the font link in index.html
+
+  Invent a new paper stock
+      style.css, the "paper looks" section
+
+  Change how it behaves on phones
+      style.css, the :root[data-mode="stack"] rules
+
+  Change the phone / desktop cutoff
+      board.js: STACK_BELOW_W
+
+  Fill more of a television screen
+      board.js: SAFE_AREA, set it to 1
+
+  Resize the whole board
+      board.js: BOARD_W and BOARD_H
+      style.css: --board-w and --board-h
+
+
+==============================================================
+  End of manual.
+==============================================================
