@@ -23,10 +23,11 @@
    8. Paper stocks
    9. Photos and images
   10. Writing a case page
-  11. Lighting
-  12. Scaling and televisions
-  13. When something breaks
-  14. Quick reference - where to change what
+  11. Folder tabs on a case page
+  12. Lighting
+  13. Scaling and televisions
+  14. When something breaks
+  15. Quick reference - where to change what
 
 
 ==============================================================
@@ -335,6 +336,33 @@
       instead. All of that is worked out from the two pin
       positions. There is nothing to set.
 
+  STRING IN FRONT OF, OR BEHIND, THE PAPERS
+
+  Out of the box the string runs ACROSS THE FRONT of the
+  papers and each end tucks under the head of its pin, the way
+  it does on a real board.
+
+  That is two numbers in style.css. Search for .strings and you
+  will find them next to each other:
+
+      .strings{ ... z-index:4 ... }     string in front
+      .paper{ ... z-index:auto ... }    papers behind it
+
+  To put the string BEHIND the papers instead, change those two
+  to:
+
+      .strings{ ... z-index:2 ... }
+      .paper{ ... z-index:3 ... }
+
+  Nothing else has to change, and content.js is not involved.
+
+  Why z-index:auto on the paper matters: if the paper is given
+  a number of its own, it traps its pin underneath it, and the
+  string then draws over the top of the pin head instead of
+  ending at it. Leaving it on auto lets the pin float above the
+  string, which is what makes the ends look tied on.
+
+
   HOVERING A PAPER LIGHTS UP ITS STRING. That comes free: every
   paper gets a rule generated for it when the page loads, so a
   new paper's string lights up exactly like the originals.
@@ -458,7 +486,166 @@
 
 
 ==============================================================
-  11.  LIGHTING
+  11.  FOLDER TABS ON A CASE PAGE
+==============================================================
+
+  A case page can carry a row of real folder tabs across the
+  top of its manila folder, the way a physical file does. Case
+  04, Wheels Assembly, has four: Wheels Assembly, Drivetrain,
+  Camera and Electrical.
+
+  Hovering a tab lifts it clear of the folder with a thin white
+  outline and a soft white glow. Clicking it slides the new
+  contents in from the right. It is all done with hidden radio
+  buttons and CSS, so there is no JavaScript to break.
+
+
+  TURNING A PAPER INTO A TABBED ONE
+
+  In content.js, replace that paper's lede, body, aside and
+  note fields with a tabs list. Each entry is one tab, and each
+  tab takes the same fields the page used to take.
+
+      { id: 'wheels', n: '04', title: 'Wheels Assembly',
+        look: 'v-graph',
+        dek: 'Build log: the drivetrain, start to finish.',
+        x: 1128, y: 306, w: 258, h: 236, rot: 3.4,
+        links: ['sponsors'],
+        tabs: [
+
+          { label: 'Wheels Assembly',
+            title: 'Wheels Assembly',
+            lede: 'The wheel-module build log.',
+            body: `
+              <h3>Log</h3>
+              <p>...</p>`,
+            aside: { title: 'Bill of materials', facts: [
+              ['Wheels', '[PART #]'] ] },
+            note: 'keep adding entries' },
+
+          { label: 'Drivetrain',
+            title: 'Drivetrain',
+            lede: 'Four modules, one frame.',
+            body: `<h3>Layout</h3><p>...</p>` },
+
+          { label: 'Camera',
+            title: 'Camera and Vision',
+            body: `<p>...</p>` }
+
+        ] },
+
+
+  THE TAB FIELDS
+
+  label     REQUIRED
+            The short text printed on the tab itself. Keep it
+            to one or two words - long labels make a crowded
+            strip.
+
+  title     optional
+            The big heading inside the folder. Leave it out and
+            the label is used.
+
+  lede      optional
+            The italic opening line for that tab.
+
+  body      REQUIRED
+            That tab's contents, written as HTML exactly the
+            same way as a normal page. See part 10.
+
+  aside     optional
+            Its own boxed fact list.
+
+  note      optional
+            Its own handwritten margin note.
+
+
+  ADDING A TAB
+
+  Copy any tab block, paste it into the tabs list, change the
+  words. It appears in the strip immediately and gets its own
+  hover, its own slide-in and its own panel. Nothing else needs
+  touching.
+
+
+  REMOVING A TAB
+
+  Delete its block. If you delete all but one, the tab strip
+  disappears by itself and the page goes back to being an
+  ordinary single-page case file.
+
+
+  THE FIRST TAB IS THE ONE THAT OPENS
+
+  Whichever block is first in the list is the tab showing when
+  someone arrives. To change which one opens, move its block to
+  the top of the list.
+
+
+  A PAPER WITHOUT TABS
+
+  Nothing changes. Leave lede, body, aside and note where they
+  are and the page renders as it always has. A paper is only
+  tabbed if it has a tabs list with two or more entries.
+
+
+  SPEED OF THE SLIDE
+
+  In style.css, search for panel-in. The animation is declared
+  in board.js as
+
+      animation:panel-in .34s cubic-bezier(.22,.72,.26,1)
+
+  Raise .34s for a slower slide, lower it for a snappier one.
+  The distance it travels from is in style.css:
+
+      @keyframes panel-in{
+        from{opacity:0;transform:translateX(34px)}
+        to{opacity:1;transform:translateX(0)}
+      }
+
+
+  THE FILE OPENING
+
+  Clicking a paper on the board plays an opening: the file tips
+  down and forward as though a cover were being lifted. Every
+  case file does this, tabs or not.
+
+  In style.css, search for file-open. Two things to tune:
+
+      .case .filewrap{animation:file-open .52s ...}
+
+          .52s is how long the file takes to open.
+
+      @keyframes file-open{
+        0%{opacity:0;
+           transform:translateY(38px) rotateX(-24deg) scale(.955)}
+        ...
+      }
+
+          rotateX is the tilt it opens from. More negative
+          means a steeper opening. 0deg turns the tilt off and
+          leaves a plain rise.
+
+  On phones the tilt is dropped and the opening becomes a
+  simple rise.
+
+
+  THE HOVER GLOW
+
+  In style.css, search for .ftab:hover. The lift is the
+  translateY, the white line is the inset shadow and the halo
+  is the one after it:
+
+      transform:translateY(-5px);
+      box-shadow:
+        inset 0 0 0 1.5px rgba(255,255,255,.95),
+        0 0 16px rgba(255,255,255,.5),
+        0 -10px 22px -8px rgba(0,0,0,.55);
+
+
+==============================================================
+  12.  LIGHTING
 ==============================================================
 
   The board is lit like a room with one lamp hanging over it.
@@ -572,7 +759,7 @@
 
 
 ==============================================================
-  12.  SCALING AND TELEVISIONS
+  13.  SCALING AND TELEVISIONS
 ==============================================================
 
   Two modes, chosen automatically when the page loads and on
@@ -672,7 +859,7 @@
 
 
 ==============================================================
-  13.  WHEN SOMETHING BREAKS
+  14.  WHEN SOMETHING BREAKS
 ==============================================================
 
   THE BOARD COMES UP BLANK.
@@ -718,7 +905,7 @@
 
 
 ==============================================================
-  14.  QUICK REFERENCE - WHERE TO CHANGE WHAT
+  15.  QUICK REFERENCE - WHERE TO CHANGE WHAT
 ==============================================================
 
   Add or remove a page
@@ -754,6 +941,9 @@
 
   Change the phone / desktop cutoff
       board.js: STACK_BELOW_W
+
+  Speed up or slow down the file opening
+      style.css: the .52s in .case .filewrap
 
   Fill more of a television screen
       board.js: SAFE_AREA, set it to 1

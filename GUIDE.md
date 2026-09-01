@@ -185,6 +185,30 @@ That draws string from The Robot to Wheels Assembly and to Sponsors.
   more. Near-vertical runs bow sideways instead. That is all worked out
   from the two pin positions — nothing to set.
 
+### String in front of, or behind, the papers
+
+Out of the box the string runs **across the front** of the papers, with
+each end tucking under the head of its pin — the way it does on a real
+board. That is two numbers in `style.css`, sitting next to each other:
+
+```css
+.strings{ … z-index:4 … }     /* string in front */
+.paper{ … z-index:auto … }    /* papers behind it */
+```
+
+To put the string **behind** the papers instead:
+
+```css
+.strings{ … z-index:2 … }
+.paper{ … z-index:3 … }
+```
+
+Nothing else changes, and `content.js` is not involved.
+
+`z-index:auto` on the paper is the part that matters: give the paper a
+number of its own and it traps its pin underneath it, so the string
+draws over the top of the pin head instead of ending at it.
+
 **Hovering a paper lights up its string.** That comes free: every paper
 gets a rule generated for it at load, so a new paper's string lights up
 the same as the originals.
@@ -312,6 +336,75 @@ aside: { title: 'Spec sheet', facts: [
   ['Weight', '120 lb'],
   ['Top speed', '14 ft/s'] ] },
 ```
+
+---
+
+## 9b. Folder tabs on a case page
+
+A case page can carry a row of real folder tabs across the top of its
+manila folder. Case 04, Wheels Assembly, has four: **Wheels Assembly**,
+**Drivetrain**, **Camera** and **Electrical**. Hovering one lifts it
+clear of the folder with a thin white outline and a soft white glow;
+clicking slides the new contents in from the right. Hidden radio
+buttons and CSS do all of it — no JavaScript.
+
+Replace that paper's `lede` / `body` / `aside` / `note` with a `tabs`
+list. Each entry takes the same fields the page used to take:
+
+```js
+tabs: [
+  { label: 'Wheels Assembly',
+    title: 'Wheels Assembly',
+    lede: 'The wheel-module build log.',
+    body: `<h3>Log</h3><p>…</p>`,
+    aside: { title: 'Bill of materials', facts: [['Wheels', '[PART #]']] },
+    note: 'keep adding entries' },
+
+  { label: 'Drivetrain', title: 'Drivetrain',
+    body: `<h3>Layout</h3><p>…</p>` },
+
+  { label: 'Camera', title: 'Camera and Vision',
+    body: `<p>…</p>` }
+]
+```
+
+| Tab field | Required | What it does |
+|---|---|---|
+| `label` | **yes** | Text on the tab itself. One or two words. |
+| `title` | no | Big heading inside the folder. Falls back to `label`. |
+| `lede` | no | Italic opening line for that tab. |
+| `body` | **yes** | That tab's contents, as HTML. Same as §9. |
+| `aside` | no | Its own boxed fact list. |
+| `note` | no | Its own handwritten margin note. |
+
+- **Add a tab:** copy a block into the list. It gets its own tab, hover,
+  slide-in and panel automatically.
+- **Remove a tab:** delete its block. Drop to one and the strip
+  disappears — the page goes back to an ordinary case file.
+- **Which tab opens:** whichever block is first. Move a block to the top
+  to change it.
+- **A paper without tabs** is untouched: keep `lede` / `body` / `aside` /
+  `note` where they are.
+
+Slide speed lives in `board.js` (search `panel-in`, the `.34s`); the
+distance it travels from is the `@keyframes panel-in` block in
+`style.css`. The hover lift and white glow are `.ftab:hover`.
+
+### The file opening
+
+Clicking a paper on the board plays an opening: the file tips down and
+forward as though a cover were lifted. Every case file does this, tabs
+or not. In `style.css`, search `file-open`:
+
+```css
+.case .filewrap{animation:file-open .52s …}   /* how long it takes */
+
+@keyframes file-open{
+  0%{opacity:0; transform:translateY(38px) rotateX(-24deg) scale(.955)}
+}                       /* rotateX is the tilt it opens from; 0deg = off */
+```
+
+On phones the tilt is dropped and the opening becomes a plain rise.
 
 ---
 

@@ -133,19 +133,86 @@ const PAPERS = [
         <path class="fill-red" d="M76,50 L104,50"></path>
         <line x1="90" y1="26" x2="90" y2="50"></line>
       </svg>`,
-    lede: 'The drivetrain build log — what we cut, what we broke, and what we changed after it broke.',
-    body: `
-      <h3>Log</h3>
-      <ul class="log">
-        <li><time>[DATE]</time><p>Module design locked in CAD. Bearing bore reamed to <span class="ph">[SIZE]</span>; first plate sent to the router.</p></li>
-        <li><time>[DATE]</time><p>Dry fit of module one. Shaft was <span class="ph">[AMOUNT]</span> long — faced it down and re-cut the spacers.</p></li>
-        <li><time>[DATE]</time><p>All four modules assembled and torqued. Ran the drivetrain on blocks; one module drew high current under no load — a bearing was seated crooked.</p></li>
-        <li><time>[DATE]</time><p>Full-weight drive test. Straight-line tracking within <span class="ph">[TOLERANCE]</span> over ten metres. Called it done.</p></li>
-      </ul>`,
-    aside: { title: 'Bill of materials', facts: [
-      ['Wheels', '[PART #]'], ['Motors', '[MODEL]'], ['Gearbox', '[RATIO]'],
-      ['Bearings', '[SIZE]'], ['Plate stock', '[MATERIAL]'] ] },
-    note: 'keep adding entries — a real log beats a tidy one' },
+    tabs: [
+
+      { label: 'Wheels Assembly',
+        title: 'Wheels Assembly',
+        lede: 'The wheel-module build log — what we cut, what we broke, and what we changed after it broke.',
+        body: `
+          <h3>What a module is made of</h3>
+          <p>Two waterjet plates, four bearings, a hub, a wheel and the hardware that keeps all of it in one plane. Nothing on the module is adjustable once it is bolted up, which is deliberate — a module that can be nudged is a module that moves on impact.</p>
+          <h3>Log</h3>
+          <ul class="log">
+            <li><time>[DATE]</time><p>Module design locked in CAD. Bearing bore reamed to <span class="ph">[SIZE]</span>; first plate sent to the router.</p></li>
+            <li><time>[DATE]</time><p>Dry fit of module one. Shaft was <span class="ph">[AMOUNT]</span> long — faced it down and re-cut the spacers.</p></li>
+            <li><time>[DATE]</time><p>All four modules assembled and torqued. Ran the drivetrain on blocks; one module drew high current under no load — a bearing was seated crooked.</p></li>
+            <li><time>[DATE]</time><p>Full-weight drive test. Straight-line tracking within <span class="ph">[TOLERANCE]</span> over ten metres. Called it done.</p></li>
+          </ul>
+          <h3>What we changed after testing</h3>
+          <p><b>Spacer stack.</b> The first version relied on the bolt to set the bearing preload. It did not hold. Now a machined spacer sets it and the bolt only clamps.</p>
+          <p><b>Wheel retention.</b> Went from a set screw to a through-bolt after one wheel walked off the hub during a push match.</p>
+          <h3>Rebuilding one in the pit</h3>
+          <p>Budget <span class="ph">[MINUTES]</span> minutes. Keep one complete spare module built and tested in the crate — swapping a whole module is always faster than diagnosing one between matches.</p>`,
+        aside: { title: 'Bill of materials', facts: [
+          ['Wheels', '[PART #]'], ['Motors', '[MODEL]'], ['Gearbox', '[RATIO]'],
+          ['Bearings', '[SIZE]'], ['Plate stock', '[MATERIAL]'] ] },
+        note: 'keep adding entries — a real log beats a tidy one' },
+
+      { label: 'Drivetrain',
+        title: 'Drivetrain',
+        lede: 'Four modules, one frame, and the gearing that decides whether we win the sprint to the middle.',
+        body: `
+          <h3>Layout</h3>
+          <p><span class="ph">[TYPE — swerve / west coast / mecanum]</span> on a <span class="ph">[W × D]</span> frame, <span class="ph">[# MOTORS]</span> drive motors and <span class="ph">[# MOTORS]</span> steering motors.</p>
+          <p>Gearing is <span class="ph">[RATIO]</span>, which puts free speed at <span class="ph">[FT/S]</span> and leaves headroom on current draw when all four modules push at once.</p>
+          <h3>Why this ratio</h3>
+          <p>We geared for acceleration over top speed. The field is short enough that we spend more time getting up to speed than holding it, and the lower ratio keeps the motors out of the stall region when we get shoved.</p>
+          <h3>Known weak points</h3>
+          <ul class="log">
+            <li><time>Belts</time><p>Tension drifts over a competition day. Checked between every match.</p></li>
+            <li><time>Encoders</time><p>Steering zero has to be re-set after a module comes off. Written on the pit whiteboard.</p></li>
+          </ul>`,
+        aside: { title: 'Numbers', facts: [
+          ['Ratio', '[RATIO]'], ['Free speed', '[FT/S]'], ['Wheel dia.', '[IN]'],
+          ['Motors', '[MODEL]'], ['Current limit', '[AMPS]'] ] },
+        note: 'measure the real speed, do not trust the calculator' },
+
+      { label: 'Camera',
+        title: 'Camera and Vision',
+        lede: 'One camera, mounted where it can see the target and nothing else.',
+        body: `
+          <h3>Hardware</h3>
+          <p><span class="ph">[CAMERA MODEL]</span> on a <span class="ph">[MOUNT MATERIAL]</span> bracket, angled <span class="ph">[ANGLE]</span> degrees up from horizontal and <span class="ph">[HEIGHT]</span> off the floor.</p>
+          <p>The mount is rigid on purpose. A camera that flexes under acceleration gives you a calibration that is only true when the robot is standing still.</p>
+          <h3>Pipeline</h3>
+          <p>Running <span class="ph">[SOFTWARE — PhotonVision / Limelight]</span>. Targets are filtered by area and aspect ratio before anything is passed to the drive code, so a reflection off the glass does not become a target.</p>
+          <h3>Calibration</h3>
+          <p>Re-calibrate after any crash that touches the mount, and once on arrival at every event — venue lighting is never the same as the shop.</p>`,
+        aside: { title: 'Setup', facts: [
+          ['Model', '[CAMERA]'], ['Resolution', '[W × H]'], ['FPS', '[RATE]'],
+          ['Mount height', '[IN]'], ['Pipeline', '[NAME]'] ] },
+        note: 'photograph the mount before you take it apart' },
+
+      { label: 'Electrical',
+        title: 'Electrical',
+        lede: 'Power, protection, and the wiring nobody wants to trace at 2am in the pit.',
+        body: `
+          <h3>Power path</h3>
+          <p><span class="ph">[BATTERY SPEC]</span> into the main breaker, then the PDP. Every drive motor on its own <span class="ph">[AMPS]</span> breaker; low-current devices share the small channels.</p>
+          <h3>Wiring rules we hold to</h3>
+          <p>Colour is not optional — red positive, black negative, no exceptions. Every run is labelled at both ends. Nothing crosses a moving joint without a strain relief.</p>
+          <p>Signal wire is routed away from motor leads wherever it can be. Where it cannot, it crosses at right angles rather than running alongside.</p>
+          <h3>Pit checks</h3>
+          <ul class="log">
+            <li><time>Every match</time><p>Battery voltage under load, main breaker seated, no loose Anderson connectors.</p></li>
+            <li><time>Every day</time><p>Full tug test on the PDP and motor terminals.</p></li>
+          </ul>`,
+        aside: { title: 'Ratings', facts: [
+          ['Battery', '[SPEC]'], ['Main breaker', '[AMPS]'],
+          ['Drive breakers', '[AMPS]'], ['Wire gauge', '[AWG]'] ] },
+        note: 'label both ends or you will regret it' }
+
+    ] },
 
   { id: 'awards', n: '05', title: 'Awards', look: 'v-lined',
     dek: 'What the judges wrote down.',

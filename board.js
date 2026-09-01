@@ -145,33 +145,102 @@
       '<div class="sheet">' + face + '</div></a>';
   }
 
-  function caseHTML(p) {
-    var aside = p.aside
-      ? '<div class="aside"><h4>' + p.aside.title + '</h4><ul class="facts">' +
-        p.aside.facts.map(function (f) {
+  /* a paper with no tabs is treated as one unnamed tab, so the two
+     cases share exactly the same markup below */
+  function tabsOf(p) {
+    if (p.tabs && p.tabs.length) return p.tabs;
+    return [{ label: p.title, title: p.title, lede: p.lede, body: p.body,
+              aside: p.aside, note: p.note }];
+  }
+
+  function panelHTML(p, t, i) {
+    var aside = t.aside
+      ? '<div class="aside"><h4>' + t.aside.title + '</h4><ul class="facts">' +
+        t.aside.facts.map(function (f) {
           return '<li><span>' + f[0] + '</span><b>' + f[1] + '</b></li>';
         }).join('') + '</ul></div>'
       : '';
-    var note = p.note ? '<p class="margin-note">' + p.note + '</p>' : '';
-    return '<section class="view case" id="' + p.id + '"><div class="filewrap">' +
+    var note = t.note ? '<p class="margin-note">' + t.note + '</p>' : '';
+    return '<div class="fpanel fp-' + p.id + '-' + i + '">' +
+      '<span class="fno">Case File ' + (p.n || '') + '</span>' +
+      '<h1>' + (t.title || t.label) + '</h1>' +
+      (t.lede ? '<p class="flede">' + t.lede + '</p>' : '') +
+      '<div class="rule"></div>' +
+      '<div class="fbody"><div>' + t.body + '</div><div>' + aside + note + '</div></div>' +
+      '</div>';
+  }
+
+  function caseHTML(p) {
+    var tabs = tabsOf(p);
+    var multi = tabs.length > 1;
+    var radios = '', strip = '';
+    if (multi) {
+      /* deliberately no "checked" attribute: the first tab is opened by
+         a plain CSS rule instead, so the file still shows its contents
+         anywhere the radio state does not survive */
+      radios = tabs.map(function (t, i) {
+        return '<input class="ftab-radio" type="radio" name="tabs-' + p.id +
+          '" id="tab-' + p.id + '-' + i + '">';
+      }).join('');
+      strip = '<div class="ftabs">' + tabs.map(function (t, i) {
+        return '<label class="ftab" for="tab-' + p.id + '-' + i + '">' + t.label + '</label>';
+      }).join('') + '</div>';
+    }
+    return '<section class="view case" id="' + p.id + '">' +
+      '<div class="filewrap' + (multi ? ' has-tabs' : '') + '">' +
       '<a href="#board" class="tape-back">← back to the board</a>' +
+      radios + strip +
+      '<div class="folder">' +
       '<article class="file">' +
       '<span class="tack tack-l"></span><span class="tack tack-r"></span>' +
       '<span class="stamp">File ' + (p.n || '') + ' · Open</span>' +
-      '<span class="fno">Case File ' + (p.n || '') + '</span>' +
-      '<h1>' + p.title + '</h1>' +
-      (p.lede ? '<p class="flede">' + p.lede + '</p>' : '') +
-      '<div class="rule"></div>' +
-      '<div class="fbody"><div>' + p.body + '</div><div>' + aside + note + '</div></div>' +
-      '</article></div></section>';
+      '<div class="fpanels' + (multi ? ' multi' : '') + '">' +
+      tabs.map(function (t, i) { return panelHTML(p, t, i); }).join('') +
+      '</div></article></div></div></section>';
   }
 
   /* one rule per paper: which page it shows, which strings light up */
   function genCSS(list) {
     var views = list.map(function (p) { return '.app[data-view="' + p.id + '"] #' + p.id; }).join(',');
     var hot = list.map(function (p) { return '.board:has([data-id="' + p.id + '"]:hover) .s-' + p.id; }).join(',');
-    return views + '{display:block}\n' +
-      hot + '{opacity:1;stroke:var(--red-hot);stroke-width:3.6;filter:drop-shadow(0 0 7px rgba(255,92,56,.75))}';
+    var css = views + '{display:block}\n' +
+      hot + '{opacity:1;stroke:var(--red-hot);stroke-width:3.6;filter:drop-shadow(0 0 7px rgba(255,92,56,.75))}\n';
+
+    /* One set of rules per folder tab. The first tab is opened by a
+       plain class rule, not by a checked radio, so a case file always
+       shows its contents even where the radio state is not kept.
+       Checking any later tab then shows that one and closes the first. */
+    var OPEN = 'background:linear-gradient(168deg,var(--manila-1),var(--manila-2));' +
+      'color:var(--red-deep);transform:translateY(0);z-index:2;' +
+      'box-shadow:inset 0 1px 0 rgba(255,250,232,.75),0 -8px 18px -10px rgba(0,0,0,.45);' +
+      'cursor:default';
+    var SHUT = 'background:linear-gradient(178deg,#dcc79a,#c9b183);color:#6d5c3e;' +
+      'transform:translateY(6px);z-index:0;' +
+      'box-shadow:inset 0 1px 0 rgba(255,250,232,.55),0 -4px 12px -6px rgba(0,0,0,.55);' +
+      'cursor:pointer';
+    var SLIDE = 'display:block;animation:panel-in .34s cubic-bezier(.22,.72,.26,1) both';
+
+    list.forEach(function (p) {
+      var tabs = tabsOf(p);
+      if (tabs.length < 2) return;
+      var id = p.id;
+
+      css += '.fpanels.multi .fp-' + id + '-0{display:block}\n';
+      css += '.ftabs label[for="tab-' + id + '-0"]{' + OPEN + '}\n';
+
+      tabs.forEach(function (t, i) {
+        var sel = '#tab-' + id + '-' + i;
+        css += sel + ':checked ~ .folder .fp-' + id + '-' + i + '{' + SLIDE + '}\n';
+        css += sel + ':checked ~ .ftabs label[for="tab-' + id + '-' + i + '"]{' + OPEN + '}\n';
+        css += sel + ':focus-visible ~ .ftabs label[for="tab-' + id + '-' + i + '"]' +
+          '{outline:2px solid var(--red-hot);outline-offset:2px}\n';
+        if (i > 0) {
+          css += sel + ':checked ~ .folder .fp-' + id + '-0{display:none}\n';
+          css += sel + ':checked ~ .ftabs label[for="tab-' + id + '-0"]:not(:hover){' + SHUT + '}\n';
+        }
+      });
+    });
+    return css;
   }
 
   function render(list) {
